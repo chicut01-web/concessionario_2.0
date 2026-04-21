@@ -1,38 +1,72 @@
 
 "use client";
-import { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, ReactNode, ElementType } from "react";
 
-// Small helper: reveal on scroll with IntersectionObserver (fallback if framer motion busy)
-function useReveal(opts = {}) {
-  const ref = useRef(null);
-  const [shown, setShown] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((e) => {
-        if (e.isIntersecting) { setShown(true); io.unobserve(e.target); }
-      });
-    }, { threshold: opts.threshold ?? 0.15, rootMargin: opts.rootMargin ?? '0px 0px -60px 0px' });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-  return [ref, shown];
+interface RevealOpts {
+  threshold?: number;
+  rootMargin?: string;
 }
 
-// Reveal wrapper using IO + CSS transitions (simpler, robust)
-function Reveal({ as: Tag = 'div', delay = 0, y = 24, className = '', children, ...rest }) {
+// Small helper: reveal on scroll with IntersectionObserver
+function useReveal(opts: RevealOpts = {}): [React.RefObject<HTMLElement | null>, boolean] {
+  const ref = useRef<HTMLElement>(null);
+  const [shown, setShown] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const el = ref.current;
+    if (!el) {
+      setShown(true);
+      return;
+    }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) { 
+          setShown(true); 
+          io.unobserve(e.target); 
+        }
+      });
+    }, { 
+      threshold: opts.threshold ?? 0.15, 
+      rootMargin: opts.rootMargin ?? '0px 0px -60px 0px' 
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [opts.threshold, opts.rootMargin]);
+
+  // Avoid "invisible" state during hydration or if IO fails.
+  // We return true if not mounted (to show server HTML) or if shown (after IO).
+  return [ref, shown || !mounted];
+}
+
+interface RevealProps extends React.HTMLAttributes<HTMLElement> {
+  as?: ElementType;
+  delay?: number;
+  y?: number;
+  children: ReactNode;
+  className?: string;
+}
+
+// Reveal wrapper using IO + CSS transitions
+function Reveal({ as: Tag = 'div', delay = 0, y = 24, className = '', children, ...rest }: RevealProps) {
   const [ref, shown] = useReveal();
-  const style = {
+  const style: React.CSSProperties = {
     transition: `opacity 700ms cubic-bezier(.2,.7,.2,1) ${delay}ms, transform 800ms cubic-bezier(.2,.7,.2,1) ${delay}ms`,
     opacity: shown ? 1 : 0,
     transform: shown ? 'translateY(0)' : `translateY(${y}px)`,
     willChange: 'opacity, transform',
   };
-  return <Tag ref={ref} style={style} className={className} {...rest}>{children}</Tag>;
+  return <Tag ref={ref as any} style={style} className={className} {...rest}>{children}</Tag>;
 }
 
-function SectionLabel({ n, children, className = '' }) {
+interface SectionLabelProps {
+  n: string | number;
+  children: ReactNode;
+  className?: string;
+}
+
+function SectionLabel({ n, children, className = '' }: SectionLabelProps) {
   return (
     <div className={`flex items-center gap-3 text-[11px] font-mono uppercase tracking-[0.18em] text-ink-500 ${className}`}>
       <span className="inline-block w-8 h-px bg-ink-300" />
@@ -43,7 +77,13 @@ function SectionLabel({ n, children, className = '' }) {
   );
 }
 
-function Pill({ children, tone = 'ink', className = '' }) {
+interface PillProps {
+  children: ReactNode;
+  tone?: 'ink' | 'brand' | 'accent' | 'green' | 'amber';
+  className?: string;
+}
+
+function Pill({ children, tone = 'ink', className = '' }: PillProps) {
   const tones = {
     ink:    'bg-ink-100 text-ink-700 border-ink-200',
     brand:  'bg-brand-50 text-brand-700 border-brand-100',
@@ -54,7 +94,13 @@ function Pill({ children, tone = 'ink', className = '' }) {
   return <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-medium ${tones[tone]} ${className}`}>{children}</span>;
 }
 
-function Button({ variant = 'primary', className = '', children, ...rest }) {
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'primary' | 'dark' | 'outline' | 'ghost' | 'accent';
+  className?: string;
+  children: ReactNode;
+}
+
+function Button({ variant = 'primary', className = '', children, ...rest }: ButtonProps) {
   const base = 'inline-flex items-center justify-center gap-2 font-medium transition-all duration-200 rounded-full select-none';
   const variants = {
     primary:   'bg-brand-700 text-white hover:bg-brand-800 px-5 py-3 shadow-sm hover:shadow-md',
@@ -66,10 +112,18 @@ function Button({ variant = 'primary', className = '', children, ...rest }) {
   return <button className={`${base} ${variants[variant]} ${className}`} {...rest}>{children}</button>;
 }
 
+export type IconName = 'check' | 'shield' | 'gauge' | 'euro' | 'arrow' | 'arrowDn' | 'spark' | 'search' | 'phone' | 'mail' | 'pin' | 'star' | 'plus' | 'minus' | 'x' | 'menu' | 'tag' | 'bolt' | 'leaf' | 'droplet' | 'cog' | 'filter';
+
+interface IconProps {
+  name: IconName;
+  className?: string;
+  stroke?: number;
+}
+
 // Iconography — minimal line icons
-const Icon = ({ name, className = 'w-5 h-5', stroke = 1.6 }) => {
-  const common = { fill: 'none', stroke: 'currentColor', strokeWidth: stroke, strokeLinecap: 'round', strokeLinejoin: 'round' };
-  const paths = {
+const Icon = ({ name, className = 'w-5 h-5', stroke = 1.6 }: IconProps) => {
+  const common = { fill: 'none', stroke: 'currentColor', strokeWidth: stroke, strokeLinecap: 'round', strokeLinejoin: 'round' } as const;
+  const paths: Record<IconName, ReactNode> = {
     check:    <><path {...common} d="M4 12l5 5L20 6"/></>,
     shield:   <><path {...common} d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/></>,
     gauge:    <><circle cx="12" cy="12" r="9" {...common}/><path {...common} d="M12 12l4-3"/><path {...common} d="M8 14a4 4 0 018 0"/></>,
@@ -93,20 +147,28 @@ const Icon = ({ name, className = 'w-5 h-5', stroke = 1.6 }) => {
     cog:      <><circle cx="12" cy="12" r="3" {...common}/><path {...common} d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.08A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.08A1.65 1.65 0 004.6 9 1.65 1.65 0 004.27 7.18l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6h0a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.08a1.65 1.65 0 001 1.51h0a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9v0a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.08a1.65 1.65 0 00-1.51 1z"/></>,
     filter:   <><path {...common} d="M3 5h18M6 12h12M10 19h4"/></>,
   };
+  if (!paths[name]) return null;
   return <svg viewBox="0 0 24 24" className={className}>{paths[name]}</svg>;
 }
 
+interface PlaceholderNoteProps {
+  children: ReactNode;
+}
+
 // Small monospace label for placeholders
-function PlaceholderNote({ children }) {
+function PlaceholderNote({ children }: PlaceholderNoteProps) {
   return <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-500">{children}</span>;
 }
 
-// Fuel icon mapping
-function FuelIcon({ fuel, className = 'w-3.5 h-3.5' }) {
-  const map = { 'Elettrico': 'bolt', 'Ibrido': 'leaf', 'Benzina': 'droplet', 'Diesel': 'droplet' };
-  return <Icon name={map[fuel] || 'droplet'} className={className} stroke={1.8} />;
+interface FuelIconProps {
+  fuel: string;
+  className?: string;
 }
 
-
+// Fuel icon mapping
+function FuelIcon({ fuel, className = 'w-3.5 h-3.5' }: FuelIconProps) {
+  const map: Record<string, IconName> = { 'Elettrico': 'bolt', 'Ibrido': 'leaf', 'Benzina': 'droplet', 'Diesel': 'droplet' };
+  return <Icon name={map[fuel] || 'droplet'} className={className} stroke={1.8} />;
+}
 
 export { Reveal, SectionLabel, Pill, Button, Icon, PlaceholderNote, FuelIcon, useReveal };

@@ -1,23 +1,38 @@
+
 "use client";
-import { useState } from 'react';
-import { Icon, Button, Pill, SectionLabel, Reveal, PlaceholderNote } from './primitives.jsx';
-import { TESTIMONIALS, TEAM, FAQ } from './data.jsx';
-
-
-
+import React, { useState } from 'react';
+import { Icon, Button, SectionLabel, Reveal, PlaceholderNote } from './primitives';
+import { TESTIMONIALS, TEAM, FAQ } from './data';
 
 /* =====================================================
    VALUTA IL TUO USATO
-===================================================== */
+ ===================================================== */
 export function ValutaUsato() {
-  const [form, setForm] = useState({ targa: '', km: '', anno: '' });
+  const [form, setForm] = useState({ targa: '', km: '', anno: '', email: '' });
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
-  const set = (k) => (e) => setForm(s => ({ ...s, [k]: e.target.value }));
+  const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) => setForm(s => ({ ...s, [k]: e.target.value }));
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (form.targa && form.km && form.anno) setSubmitted(true);
+    if (!form.targa || !form.km || !form.anno || !form.email) return;
+    setLoading(true);
+    setSubmitError('');
+    try {
+      const res = await fetch('/api/valuta', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targa: form.targa, km: parseInt(form.km), anno: parseInt(form.anno), email: form.email }),
+      });
+      if (res.ok) setSubmitted(true);
+      else setSubmitError("Errore nell'invio. Riprova.");
+    } catch {
+      setSubmitError('Errore di rete. Riprova.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -63,8 +78,10 @@ export function ValutaUsato() {
                     <Field label="Km percorsi" ph="es. 85.000" value={form.km} onChange={set('km')} />
                     <Field label="Anno immatr." ph="es. 2019" value={form.anno} onChange={set('anno')} />
                   </div>
-                  <Button variant="dark" className="w-full mt-2">
-                    Ottieni stima gratuita <Icon name="arrow" className="w-4 h-4" />
+                  <Field label="La tua email" ph="tu@email.it" value={form.email} onChange={set('email')} type="email" />
+                  {submitError && <p className="text-[11.5px] text-rose-600">{submitError}</p>}
+                  <Button variant="dark" className="w-full mt-2" disabled={loading}>
+                    {loading ? 'Invio in corso…' : <><span>Ottieni stima gratuita</span><Icon name="arrow" className="w-4 h-4" /></>}
                   </Button>
                   <p className="text-[11.5px] text-ink-500 leading-relaxed">
                     Inviando accetti la privacy policy. Ti ricontatteremo solo per questa stima.
@@ -80,7 +97,7 @@ export function ValutaUsato() {
                     Entro 24 ore riceverai una valutazione indicativa via email,
                     con una forchetta di mercato aggiornata.
                   </div>
-                  <button className="mt-6 text-brand-700 text-[13px] underline" onClick={() => { setSubmitted(false); setForm({ targa: '', km: '', anno: '' }); }}>
+                  <button className="mt-6 text-brand-700 text-[13px] underline" onClick={() => { setSubmitted(false); setForm({ targa: '', km: '', anno: '', email: '' }); }}>
                     Invia un&rsquo;altra valutazione
                   </button>
                 </div>
@@ -93,7 +110,15 @@ export function ValutaUsato() {
   );
 }
 
-function Field({ label, ph, value, onChange, type = 'text' }) {
+interface FieldProps {
+  label: string;
+  ph: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  type?: string;
+}
+
+function Field({ label, ph, value, onChange, type = 'text' }: FieldProps) {
   return (
     <label className="block">
       <span className="block text-[11px] font-mono uppercase tracking-[0.15em] text-ink-500 mb-1.5">{label}</span>
@@ -107,7 +132,7 @@ function Field({ label, ph, value, onChange, type = 'text' }) {
 
 /* =====================================================
    TESTIMONIALS
-===================================================== */
+ ===================================================== */
 export function Testimonials() {
   const items = TESTIMONIALS;
   return (
@@ -128,7 +153,7 @@ export function Testimonials() {
             </div>
             <div className="text-[13px] text-ink-600">
               <div className="flex gap-0.5 text-amber-500">
-                {[0,1,2,3,4].map(i => <Icon key={i} name="star" className="w-3.5 h-3.5" />)}
+                {[0,1,2,3,4].map(i => <Icon key={i} name="star" className="w-3.5 h-3.5" stroke={1} />)}
               </div>
               <div className="mt-0.5">4.9 su 312 recensioni verificate</div>
             </div>
@@ -164,7 +189,7 @@ export function Testimonials() {
 
 /* =====================================================
    TEAM
-===================================================== */
+ ===================================================== */
 export function Team() {
   const team = TEAM;
   return (
@@ -218,7 +243,7 @@ export function Team() {
 
 /* =====================================================
    FAQ
-===================================================== */
+ ===================================================== */
 export function FAQSection() {
   const faq = FAQ;
   const [openIdx, setOpenIdx] = useState(0);
@@ -269,24 +294,40 @@ export function FAQSection() {
 
 /* =====================================================
    CONTATTI + MAPPA
-===================================================== */
+ ===================================================== */
 export function Contatti() {
   const [form, setForm] = useState({ nome: '', email: '', tel: '', msg: '' });
   const [sent, setSent] = useState(false);
-  const [err, setErr] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState<Record<string, string | undefined>>({});
 
-  const set = (k) => (e) => {
+  const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm(s => ({ ...s, [k]: e.target.value }));
     setErr(e2 => ({ ...e2, [k]: undefined }));
   };
-  const onSubmit = (e) => {
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const errors = {};
+    const errors: Record<string, string> = {};
     if (!form.nome.trim()) errors.nome = 'Inserisci il tuo nome';
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email)) errors.email = 'Email non valida';
     if (!form.msg.trim()) errors.msg = 'Scrivi il tuo messaggio';
     setErr(errors);
-    if (Object.keys(errors).length === 0) setSent(true);
+    if (Object.keys(errors).length > 0) return;
+    setLoading(true);
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      if (res.ok) setSent(true);
+      else setErr({ msg: "Errore nell'invio. Riprova." });
+    } catch {
+      setErr({ msg: 'Errore di rete. Riprova.' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -300,7 +341,6 @@ export function Contatti() {
         </div>
 
         <div className="grid lg:grid-cols-12 gap-6 lg:gap-8">
-          {/* Info column */}
           <div className="lg:col-span-4 space-y-4">
             <InfoCard icon="pin" label="Showroom"
               title="Via Irno 142 · Salerno"
@@ -313,7 +353,6 @@ export function Contatti() {
               sub="Rispondiamo entro la giornata lavorativa" />
           </div>
 
-          {/* Form */}
           <div className="lg:col-span-4 bg-white border border-ink-200 rounded-3xl p-6 md:p-8">
             {!sent ? (
               <form onSubmit={onSubmit} className="space-y-4">
@@ -336,8 +375,8 @@ export function Contatti() {
                   />
                   {err.msg && <div className="mt-1 text-[11.5px] text-rose-600">{err.msg}</div>}
                 </label>
-                <Button variant="dark" className="w-full">
-                  Invia messaggio <Icon name="arrow" className="w-4 h-4" />
+                <Button variant="dark" className="w-full" disabled={loading}>
+                  {loading ? 'Invio in corso…' : <><span>Invia messaggio</span><Icon name="arrow" className="w-4 h-4" /></>}
                 </Button>
               </form>
             ) : (
@@ -351,7 +390,6 @@ export function Contatti() {
             )}
           </div>
 
-          {/* Map */}
           <div className="lg:col-span-4 relative rounded-3xl overflow-hidden border border-ink-200 min-h-[360px] lg:min-h-0 bg-gradient-to-br from-brand-50 to-paper">
             <MapMock />
             <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur rounded-2xl p-4 border border-ink-200 flex items-center gap-3">
@@ -374,7 +412,14 @@ export function Contatti() {
   );
 }
 
-export function InfoCard({ icon, label, title, sub }) {
+interface InfoCardProps {
+  icon: any;
+  label: string;
+  title: string;
+  sub: string;
+}
+
+export function InfoCard({ icon, label, title, sub }: InfoCardProps) {
   return (
     <div className="bg-white border border-ink-200 rounded-2xl p-5 flex gap-4 items-start hover:border-brand-300 transition">
       <div className="w-10 h-10 rounded-xl bg-brand-50 text-brand-700 grid place-items-center shrink-0">
@@ -390,7 +435,6 @@ export function InfoCard({ icon, label, title, sub }) {
 }
 
 export function MapMock() {
-  // Stylized fake map of Salerno area — placeholder for a real embedded map
   return (
     <svg viewBox="0 0 400 500" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice">
       <defs>
@@ -400,9 +444,7 @@ export function MapMock() {
       </defs>
       <rect width="400" height="500" fill="oklch(0.98 0.004 255)" />
       <rect width="400" height="500" fill="url(#mapgrid)" />
-      {/* sea */}
       <path d="M 0 360 L 400 330 L 400 500 L 0 500 Z" fill="oklch(0.88 0.06 220 / 0.5)" />
-      {/* streets */}
       <g stroke="oklch(0.80 0.01 255)" strokeWidth="3" fill="none" strokeLinecap="round">
         <path d="M 10 120 L 400 140" />
         <path d="M 20 220 L 390 200" />
@@ -414,7 +456,6 @@ export function MapMock() {
       <g stroke="oklch(0.65 0.14 255)" strokeWidth="2.5" fill="none" strokeLinecap="round">
         <path d="M 60 50 L 350 180 L 210 380" />
       </g>
-      {/* blocks */}
       <g fill="oklch(0.96 0.005 255)" stroke="oklch(0.88 0.008 255)">
         <rect x="40"  y="60"  width="50" height="40" rx="3" />
         <rect x="100" y="50"  width="70" height="50" rx="3" />
@@ -425,7 +466,6 @@ export function MapMock() {
         <rect x="40"  y="250" width="70" height="40" rx="3" />
         <rect x="310" y="220" width="50" height="40" rx="3" />
       </g>
-      {/* pin */}
       <g transform="translate(220 230)">
         <circle r="24" fill="oklch(0.32 0.14 255 / 0.18)">
           <animate attributeName="r" values="20;32;20" dur="2.5s" repeatCount="indefinite" />
@@ -440,7 +480,7 @@ export function MapMock() {
 
 /* =====================================================
    FOOTER
-===================================================== */
+ ===================================================== */
 export function Footer() {
   const cols = [
     { h: 'Secar', links: ['Parco auto', 'Come funziona', 'Valuta il tuo usato', 'Team', 'Contatti'] },
@@ -496,5 +536,3 @@ export function Footer() {
     </footer>
   );
 }
-
-

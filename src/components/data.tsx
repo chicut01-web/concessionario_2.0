@@ -1,7 +1,45 @@
 
-// All data for the Secar prototype. Attached to window for cross-script access.
+export interface Car {
+  id: number;
+  brand: string;
+  model: string;
+  year: number;
+  km: number;
+  fuel: 'Benzina' | 'Diesel' | 'Ibrido' | 'Elettrico';
+  trans: string;
+  price: number;
+  monthly: number;
+  badge: 'Km 0' | 'Certificata' | 'Occasione' | null;
+  color: string;
+  tone: string;
+}
 
-const CARS = [
+export interface Testimonial {
+  name: string;
+  city: string;
+  stars: number;
+  text: string;
+}
+
+export interface FAQItem {
+  q: string;
+  a: string;
+}
+
+export interface TeamMember {
+  name: string;
+  role: string;
+  years: number;
+  bio: string;
+}
+
+export interface Step {
+  n: number;
+  t: string;
+  d: string;
+}
+
+const CARS: Car[] = [
   { id: 1,  brand: 'Volkswagen', model: 'Golf 1.5 TSI Life',        year: 2023, km: 18500, fuel: 'Benzina',  trans: 'Manuale',     price: 21900, monthly: 249, badge: 'Km 0',        color: 'Grigio Urano',  tone: 'slate'  },
   { id: 2,  brand: 'Fiat',       model: '500e La Prima by Bocelli', year: 2024, km: 3200,  fuel: 'Elettrico', trans: 'Automatico',  price: 24500, monthly: 279, badge: 'Km 0',        color: 'Celestial Blue', tone: 'sky'   },
   { id: 3,  brand: 'Audi',       model: 'A3 Sportback 35 TDI',      year: 2022, km: 42100, fuel: 'Diesel',   trans: 'S tronic',    price: 27800, monthly: 319, badge: 'Certificata',  color: 'Bianco Ibis',    tone: 'zinc'  },
@@ -18,7 +56,7 @@ const CARS = [
 
 const BRANDS = ['Volkswagen','Fiat','Audi','BMW','Toyota','Peugeot','Tesla','Renault','Jeep','Mercedes','Citroen','Hyundai','Ford','Opel','Kia','Seat','Skoda','Dacia','Nissan','Mazda'];
 
-const TESTIMONIALS = [
+const TESTIMONIALS: Testimonial[] = [
   { name: 'Marco D.',        city: 'Salerno',  stars: 5, text: 'Zero sorprese. I chilometri erano quelli dichiarati, la pratica chiusa in tre giorni. Servizio onesto come ormai se ne vedono pochi.' },
   { name: 'Giulia R.',       city: 'Battipaglia', stars: 5, text: 'Mi hanno proposto una rata che rientrava nel mio budget senza forzare la mano. Alla consegna l\u2019auto era come nuova, lavata e con il pieno.' },
   { name: 'Antonio P.',      city: 'Cava de\u2019 Tirreni', stars: 5, text: 'Venivo da un\u2019esperienza pessima con un\u2019altra concessionaria. Qui trasparenza totale: report ispezione scritto, garanzia reale, nessun costo nascosto.' },
@@ -27,7 +65,7 @@ const TESTIMONIALS = [
   { name: 'Fabiana C.',      city: 'Agropoli', stars: 5, text: 'Ritiro del mio usato valutato bene, senza le solite trattative estenuanti. Processo pulito dall\u2019inizio alla fine.' },
 ];
 
-const FAQ = [
+const FAQ: FAQItem[] = [
   { q: 'Cosa significa che i chilometri sono certificati?',
     a: 'Ogni auto passa attraverso un controllo documentale (libretto, tagliandi, storico assicurativo) e un test diagnostico OBD con report scritto che ti consegniamo insieme all\u2019auto. Se i km dichiarati non corrispondono, ti rimborsiamo l\u2019intero importo entro 14 giorni.' },
   { q: 'Come funziona la garanzia 12 mesi?',
@@ -42,19 +80,17 @@ const FAQ = [
     a: 'Le km 0 sono auto immatricolate dal concessionario e mai usate da un cliente privato. Le Certificate sono usate che hanno superato il nostro check a 140 punti. Entrambe escono con 12 mesi di garanzia.' },
 ];
 
-const TEAM = [
+const TEAM: TeamMember[] = [
   { name: 'Luca Sabbatino',  role: 'Fondatore & CEO',         years: 18, bio: 'Cresciuto tra motori, tagliandi e libretti di circolazione. Ha fondato Secar nel 2011.' },
   { name: 'Elena Ferrara',   role: 'Responsabile Vendite',    years: 11, bio: 'Si occupa del primo contatto e del match tra cliente e vettura. Non vende mai quello che non comprerebbe per s\u00e9.' },
   { name: 'Davide Esposito', role: 'Capo Officina',           years: 22, bio: 'Ogni auto passa dalle sue mani prima di arrivare in salone. \u00c8 la ragione per cui possiamo certificare i km.' },
   { name: 'Sara Conte',      role: 'Area Finanziamenti',      years: 7,  bio: 'Costruisce i piani finanziari su misura e ti spiega i numeri in chiaro, senza scorciatoie.' },
 ];
 
-const STEPS = [
+const STEPS: Step[] = [
   { n: 1, t: 'Scegli l\u2019auto',     d: 'Esplora il nostro parco online, filtra per alimentazione o budget e prenota un test drive in pochi click.' },
   { n: 2, t: 'Prova e verifica',      d: 'Ti consegniamo il report dei 140 controlli, ti accompagniamo in strada, rispondiamo a ogni domanda.' },
   { n: 3, t: 'Porta a casa',          d: 'Finanziamento, permuta e passaggio di propriet\u00e0 li gestiamo noi. Tu ritiri l\u2019auto pronta, con il pieno.' },
 ];
-
-
 
 export { CARS, BRANDS, TESTIMONIALS, FAQ, TEAM, STEPS };

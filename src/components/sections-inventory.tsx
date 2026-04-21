@@ -1,20 +1,23 @@
+
 "use client";
-import { useState, useMemo, useRef, useEffect } from 'react';
-import { Icon, Button, Pill, SectionLabel, Reveal, PlaceholderNote, FuelIcon } from './primitives.jsx';
-import { CarSVG } from './car-svg.jsx';
-import { CARS } from './data.jsx';
-
-
-
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { Icon, Button, Pill, SectionLabel, Reveal, PlaceholderNote, FuelIcon } from './primitives';
+import { CarSVG } from './car-svg';
+import { CARS, Car } from './data';
 
 /* =====================================================
    CAR CARD — 3D tilt on hover
-===================================================== */
-export function CarCard({ car, onOpen }) {
-  const ref = useRef(null);
+ ===================================================== */
+interface CarCardProps {
+  car: Car;
+  onOpen: (car: Car) => void;
+}
+
+export function CarCard({ car, onOpen }: CarCardProps) {
+  const ref = useRef<HTMLDivElement>(null);
   const [tx, setTx] = useState({ rx: 0, ry: 0, mx: 50, my: 50 });
 
-  const onMove = (e) => {
+  const onMove = (e: React.MouseEvent) => {
     const el = ref.current; if (!el) return;
     const r = el.getBoundingClientRect();
     const px = (e.clientX - r.left) / r.width;
@@ -26,7 +29,7 @@ export function CarCard({ car, onOpen }) {
   const onLeave = () => setTx({ rx: 0, ry: 0, mx: 50, my: 50 });
 
   // subtle per-card tone tinting of stripes placeholder
-  const swatches = {
+  const swatches: Record<string, string[]> = {
     slate: ['oklch(0.68 0.02 255)', 'oklch(0.58 0.02 255)'],
     sky:   ['oklch(0.75 0.08 220)', 'oklch(0.62 0.10 220)'],
     zinc:  ['oklch(0.88 0.005 255)','oklch(0.78 0.005 255)'],
@@ -146,14 +149,21 @@ export function CarCard({ car, onOpen }) {
 
 /* =====================================================
    INVENTORY — filters + grid + modal
-===================================================== */
+ ===================================================== */
 export function Inventory() {
-  const all = CARS;
+  const [all, setAll] = useState<Car[]>(CARS);
   const [brand, setBrand] = useState('Tutte');
   const [fuel, setFuel]   = useState('Tutti');
   const [price, setPrice] = useState(50000);
   const [sort, setSort]   = useState('rel');
-  const [open, setOpen]   = useState(null);
+  const [open, setOpen]   = useState<Car | null>(null);
+
+  useEffect(() => {
+    fetch('/api/cars')
+      .then(r => r.json())
+      .then((data: Car[]) => { if (Array.isArray(data)) setAll(data); })
+      .catch(() => {});
+  }, []);
 
   const brands = ['Tutte', ...Array.from(new Set(all.map(c => c.brand)))];
   const fuels  = ['Tutti', 'Benzina', 'Diesel', 'Ibrido', 'Elettrico'];
@@ -257,7 +267,14 @@ export function Inventory() {
   );
 }
 
-export function Select({ label, value, onChange, options }) {
+interface SelectProps {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: Array<string | [string, string]>;
+}
+
+export function Select({ label, value, onChange, options }: SelectProps) {
   const list = options.map(o => Array.isArray(o) ? o : [o, o]);
   return (
     <label className="flex items-center gap-2 pl-3 pr-2 py-1.5 rounded-full bg-ink-50 hover:bg-ink-100 transition text-[13px] text-ink-800 cursor-pointer">
@@ -269,7 +286,12 @@ export function Select({ label, value, onChange, options }) {
   );
 }
 
-export function CarModal({ car, onClose }) {
+interface CarModalProps {
+  car: Car;
+  onClose: () => void;
+}
+
+export function CarModal({ car, onClose }: CarModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-6">
       <div className="absolute inset-0 bg-ink-900/50 backdrop-blur-sm animate-[fadeIn_250ms_ease]" onClick={onClose} />
@@ -340,5 +362,3 @@ export function CarModal({ car, onClose }) {
     </div>
   );
 }
-
-

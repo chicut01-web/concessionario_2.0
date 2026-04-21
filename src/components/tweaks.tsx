@@ -1,38 +1,41 @@
+
 "use client";
-import { useState, useEffect } from 'react';
-import { Icon } from './primitives.jsx';
+import React, { useState, useEffect, ReactNode } from 'react';
+import { Icon } from './primitives';
 
+interface TweakState {
+  palette: string;
+  motionIntensity: number;
+  fontPairing: string;
+  accentHue: number;
+  showGrid: boolean;
+}
 
-
-
-/* EDITMODE-BEGIN intentionally attached to DEFAULTS object below */
-const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+const TWEAK_DEFAULTS: TweakState = {
   "palette": "blu-profondo",
   "motionIntensity": 1,
   "fontPairing": "grotesk-inter",
   "accentHue": 220,
   "showGrid": true
-}/*EDITMODE-END*/;
+};
 
 export function TweaksPanel() {
   const [active, setActive] = useState(false);
-  const [state, setState]   = useState(TWEAK_DEFAULTS);
+  const [state, setState]   = useState<TweakState>(TWEAK_DEFAULTS);
 
-  // Apply state to DOM as CSS variables + classes
   useEffect(() => {
+    if (typeof document === 'undefined') return;
     const root = document.documentElement;
 
-    // palette
-    const palettes = {
+    const palettes: Record<string, { brand: string | number; accent: number }> = {
       'blu-profondo': { brand: '255', accent: 220 },
       'verde-salvia': { brand: 155, accent: 175 },
       'blu-notte':    { brand: 270, accent: 200 },
       'verde-scuro':  { brand: 140, accent: 80  },
     };
     const pal = palettes[state.palette] || palettes['blu-profondo'];
-    const hue = typeof pal.brand === 'string' ? pal.brand : pal.brand;
-    // override brand and accent via custom properties (Tailwind CDN won't rebuild,
-    // so we inject a <style> with the relevant vars + class overrides)
+    const hue = pal.brand;
+
     let overrideStyle = document.getElementById('__secar-overrides');
     if (!overrideStyle) {
       overrideStyle = document.createElement('style');
@@ -66,14 +69,13 @@ export function TweaksPanel() {
       .hover\\:bg-accent-300:hover { background-color: oklch(0.82 0.09 ${ah}) !important; }
     `;
 
-    // font pairing
-    const pairings = {
+    const pairings: Record<string, { disp: string; body: string }> = {
       'grotesk-inter': { disp: 'Space Grotesk, sans-serif',   body: 'Inter, sans-serif' },
       'inter-inter':   { disp: 'Inter, sans-serif',           body: 'Inter, sans-serif' },
       'serif-inter':   { disp: '"Instrument Serif", serif',   body: 'Inter, sans-serif' },
     };
     const pp = pairings[state.fontPairing] || pairings['grotesk-inter'];
-    // ensure optional fonts loaded
+
     if (state.fontPairing === 'serif-inter' && !document.getElementById('__secar-serif')) {
       const l = document.createElement('link');
       l.id = '__secar-serif';
@@ -88,31 +90,33 @@ export function TweaksPanel() {
       body { font-family: ${pp.body} !important; }
     `;
 
-    // motion intensity as CSS variable (future use) + data attr
     root.style.setProperty('--motion-scale', String(state.motionIntensity));
     root.dataset.motion = String(state.motionIntensity);
 
-    // grid paper toggle
     let gridStyle = document.getElementById('__secar-grid');
     if (!gridStyle) { gridStyle = document.createElement('style'); gridStyle.id = '__secar-grid'; document.head.appendChild(gridStyle); }
     gridStyle.textContent = state.showGrid ? '' : `.grid-paper { background-image: none !important; }`;
   }, [state]);
 
-  // edit mode host protocol
   useEffect(() => {
-    const onMsg = (e) => {
+    if (typeof window === 'undefined') return;
+    const onMsg = (e: MessageEvent) => {
       const d = e.data || {};
       if (d.type === '__activate_edit_mode') setActive(true);
       else if (d.type === '__deactivate_edit_mode') setActive(false);
     };
     window.addEventListener('message', onMsg);
-    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    }
     return () => window.removeEventListener('message', onMsg);
   }, []);
 
-  const update = (k, v) => {
+  const update = <K extends keyof TweakState>(k: K, v: TweakState[K]) => {
     setState(s => ({ ...s, [k]: v }));
-    window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { [k]: v } }, '*');
+    if (typeof window !== 'undefined' && window.parent) {
+      window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { [k]: v } }, '*');
+    }
   };
 
   if (!active) return null;
@@ -192,7 +196,12 @@ export function TweaksPanel() {
   );
 }
 
-export function TweakField({ label, children }) {
+interface TweakFieldProps {
+  label: string;
+  children: ReactNode;
+}
+
+export function TweakField({ label, children }: TweakFieldProps) {
   return (
     <div>
       <div className="text-[10.5px] font-mono uppercase tracking-[0.15em] text-ink-500 mb-2">{label}</div>
@@ -200,5 +209,3 @@ export function TweakField({ label, children }) {
     </div>
   );
 }
-
-

@@ -1,19 +1,19 @@
+
 "use client";
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
-import { Icon, Button, Pill, SectionLabel, Reveal, PlaceholderNote } from './primitives.jsx';
-import { CarSVG } from './car-svg.jsx';
-import { BRANDS, STEPS } from './data.jsx';
-
-
-
-
-
+import { Icon, Button, Pill, SectionLabel, Reveal } from './primitives';
+import { CarSVG } from './car-svg';
+import { BRANDS, STEPS } from './data';
 
 /* =====================================================
    NAV
-===================================================== */
-export function Nav({ onOpenTweaks }) {
+ ===================================================== */
+interface NavProps {
+  onOpenTweaks?: () => void;
+}
+
+export function Nav({ onOpenTweaks }: NavProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -59,6 +59,11 @@ export function Nav({ onOpenTweaks }) {
           </a>
           <Button variant="outline" className="text-sm py-2.5">Test drive</Button>
           <Button variant="dark" className="text-sm py-2.5">Sfoglia il parco</Button>
+          {onOpenTweaks && (
+            <Button variant="ghost" onClick={onOpenTweaks} className="p-2">
+              <Icon name="cog" className="w-4 h-4" />
+            </Button>
+          )}
         </div>
 
         <button className="lg:hidden text-ink-900 p-2" onClick={() => setMobileOpen(v => !v)} aria-label="menu">
@@ -84,9 +89,9 @@ export function Nav({ onOpenTweaks }) {
 
 /* =====================================================
    HERO — scroll-driven car + entry animation
-===================================================== */
+ ===================================================== */
 export function Hero() {
-  const sectionRef = useRef(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start start', 'end start'] });
   const bgY        = useTransform(scrollYProgress, [0, 1], ['0%', '18%']);
   const titleY     = useTransform(scrollYProgress, [0, 1], ['0%', '-40%']);
@@ -188,8 +193,6 @@ export function Hero() {
         </motion.div>
       </div>
 
-
-
       {/* Scroll hint */}
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}
@@ -209,7 +212,7 @@ export function Hero() {
 
 /* =====================================================
    BRAND MARQUEE — logos as monospace wordmarks (placeholder)
-===================================================== */
+ ===================================================== */
 export function BrandMarquee() {
   const brands = BRANDS;
   const row = [...brands, ...brands];
@@ -229,9 +232,15 @@ export function BrandMarquee() {
 
 /* =====================================================
    TRANSPARENCY — 3 pillar cards appearing on scroll
-===================================================== */
+ ===================================================== */
 export function Transparency() {
-  const pillars = [
+  const pillars: Array<{
+    n: string;
+    icon: any; // IconName from primitives
+    title: string;
+    desc: string;
+    tags: string[];
+  }> = [
     {
       n: '01',
       icon: 'gauge',
@@ -254,6 +263,7 @@ export function Transparency() {
       tags: ['6 istituti partner', 'Permuta valutata', 'Nessuna penale'],
     },
   ];
+
   return (
     <section id="trasparenza" className="relative py-24 md:py-36 bg-paper">
       <div className="max-w-[1320px] mx-auto px-6 md:px-10">
@@ -290,7 +300,6 @@ export function Transparency() {
                   <span key={t} className="text-[11.5px] px-2.5 py-1 rounded-full bg-ink-50 text-ink-700 border border-ink-100">{t}</span>
                 ))}
               </div>
-              {/* hover reveal link */}
               <a href="#" className="mt-6 text-[13px] font-medium text-brand-700 inline-flex items-center gap-1.5 opacity-80 hover:opacity-100">
                 Approfondisci
                 <Icon name="arrow" className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" stroke={2} />
@@ -299,12 +308,11 @@ export function Transparency() {
           ))}
         </div>
 
-        {/* secondary row: ispezione callout */}
         <Reveal delay={250}
           className="mt-12 md:mt-16 relative overflow-hidden rounded-3xl bg-ink-900 text-white p-8 md:p-12 grid md:grid-cols-12 gap-8 items-center">
           <div aria-hidden className="absolute -right-20 -bottom-20 w-[420px] h-[420px] rounded-full bg-brand-700/40 blur-3xl" />
           <div className="md:col-span-7 relative">
-            <SectionLabel n="" className="text-accent-300 !text-accent-400 mb-3">
+            <SectionLabel n="" className="text-accent-400 mb-3">
               <span className="text-accent-300">Il report 140 punti</span>
             </SectionLabel>
             <h3 className="font-display text-[30px] md:text-[40px] leading-[1.08] font-semibold text-white">
@@ -341,10 +349,10 @@ export function Transparency() {
 
 /* =====================================================
    HOW IT WORKS — 3 steps, scroll-anchored car
-===================================================== */
+ ===================================================== */
 export function HowItWorks() {
   const steps = STEPS;
-  const sectionRef = useRef(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start end', 'end start'] });
   const x     = useTransform(scrollYProgress, [0, 1], ['-20%', '120%']);
   const rot   = useTransform(scrollYProgress, [0, 0.5, 1], [2, 0, -2]);
@@ -364,10 +372,8 @@ export function HowItWorks() {
           </p>
         </div>
 
-        {/* Track with car */}
         <div className="relative">
           <div className="absolute left-0 right-0 top-[60px] md:top-[72px] h-px bg-ink-200" />
-          {/* Dashed road segments under */}
           <div className="absolute left-0 right-0 top-[64px] md:top-[76px] h-[2px] flex gap-2 opacity-30 overflow-hidden">
             {Array.from({ length: 40 }).map((_, i) => <div key={i} className="w-8 h-[2px] bg-ink-400 shrink-0" />)}
           </div>
