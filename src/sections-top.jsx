@@ -81,17 +81,9 @@ function Nav({ onOpenTweaks }) {
 function Hero() {
   const sectionRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start start', 'end start'] });
-  // Car moves horizontally and rotates subtly as user scrolls
-  const carX       = useTransform(scrollYProgress, [0, 1], ['0%', '-18%']);
-  const carRotate  = useTransform(scrollYProgress, [0, 1], [0, -4]);
-  const carScale   = useTransform(scrollYProgress, [0, 1], [1, 1.06]);
   const bgY        = useTransform(scrollYProgress, [0, 1], ['0%', '18%']);
   const titleY     = useTransform(scrollYProgress, [0, 1], ['0%', '-40%']);
   const titleOpac  = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
-
-  const smoothX    = useSpring(carX,      { stiffness: 80, damping: 20 });
-  const smoothRot  = useSpring(carRotate, { stiffness: 80, damping: 20 });
-  const smoothScale= useSpring(carScale,  { stiffness: 80, damping: 20 });
 
   return (
     <section ref={sectionRef} id="top" className="relative min-h-[100svh] pt-24 md:pt-28 pb-20 overflow-hidden">
@@ -189,28 +181,7 @@ function Hero() {
         </motion.div>
       </div>
 
-      {/* Floating car — scroll-driven */}
-      <motion.div
-        style={{
-          x: smoothX,
-          rotate: smoothRot,
-          scale: smoothScale,
-        }}
-        initial={{ x: '40%', opacity: 0 }}
-        animate={{ x: '0%', opacity: 1 }}
-        transition={{ duration: 1.1, delay: 0.15, ease: [0.2, 0.8, 0.2, 1] }}
-        className="pointer-events-none absolute right-[-12%] sm:right-[-8%] md:right-[-4%] lg:right-[-2%] bottom-[2%] md:bottom-[6%] w-[680px] sm:w-[780px] md:w-[900px] lg:w-[1060px] z-10 car-shadow"
-      >
-        <CarSVG className="w-full h-auto" tone="brand" />
-        {/* motion lines */}
-        <svg className="absolute -left-6 top-[52%] w-56 h-20 pointer-events-none opacity-60" viewBox="0 0 200 60">
-          <g stroke="oklch(0.45 0.16 255 / 0.4)" strokeWidth="2" strokeLinecap="round">
-            <line x1="0" y1="10" x2="70" y2="10" />
-            <line x1="20" y1="28" x2="110" y2="28" />
-            <line x1="0" y1="46" x2="60" y2="46" />
-          </g>
-        </svg>
-      </motion.div>
+
 
       {/* Scroll hint */}
       <motion.div
