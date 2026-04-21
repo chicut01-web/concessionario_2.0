@@ -1,8 +1,8 @@
-/* global React, window */
+
 
 // Clean, stylized side-view car SVG. Placeholder for real 3D render.
 // Designed to be legible at any size, no logos/branded shapes.
-function CarSVG({ className = '', tone = 'brand', shadow = true }) {
+export function CarSVG({ className = '', tone = 'brand', shadow = true }) {
   const bodyFill = tone === 'brand' ? 'url(#carBodyBrand)' : 'url(#carBodyInk)';
   const roofFill = tone === 'brand' ? 'oklch(0.22 0.10 255)' : 'oklch(0.20 0.05 255)';
   const glassFill = 'oklch(0.88 0.04 220 / 0.85)';
@@ -166,4 +166,4 @@ function CarSVG({ className = '', tone = 'brand', shadow = true }) {
   );
 }
 
-window.CarSVG = CarSVG;
+

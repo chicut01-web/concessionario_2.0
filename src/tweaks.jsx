@@ -1,5 +1,8 @@
-/* global React, window */
-const { useState, useEffect } = React;
+import { useState, useEffect } from 'react';
+import { Icon } from './primitives.jsx';
+
+
+
 
 /* EDITMODE-BEGIN intentionally attached to DEFAULTS object below */
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
@@ -10,7 +13,7 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "showGrid": true
 }/*EDITMODE-END*/;
 
-function TweaksPanel() {
+export function TweaksPanel() {
   const [active, setActive] = useState(false);
   const [state, setState]   = useState(TWEAK_DEFAULTS);
 
@@ -188,7 +191,7 @@ function TweaksPanel() {
   );
 }
 
-function TweakField({ label, children }) {
+export function TweakField({ label, children }) {
   return (
     <div>
       <div className="text-[10.5px] font-mono uppercase tracking-[0.15em] text-ink-500 mb-2">{label}</div>
@@ -197,4 +200,4 @@ function TweakField({ label, children }) {
   );
 }
 
-window.TweaksPanel = TweaksPanel;
+

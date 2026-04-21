@@ -1,6 +1,9 @@
-/* global React, ReactDOM, window */
+import { Nav, Hero, BrandMarquee, Transparency, HowItWorks } from './sections-top.jsx';
+import { Inventory } from './sections-inventory.jsx';
+import { ValutaUsato, Testimonials, Team, FAQSection, Contatti, Footer } from './sections-bottom.jsx';
+import { TweaksPanel } from './tweaks.jsx';
 
-function App() {
+export default function App() {
   return (
     <>
       <Nav />
@@ -19,6 +22,3 @@ function App() {
     </>
   );
 }
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);

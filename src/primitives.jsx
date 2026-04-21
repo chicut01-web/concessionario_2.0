@@ -1,5 +1,5 @@
-/* global React, window */
-const { useRef, useEffect, useState } = React;
+
+import { useRef, useEffect, useState } from "react";
 
 // Small helper: reveal on scroll with IntersectionObserver (fallback if framer motion busy)
 function useReveal(opts = {}) {
@@ -106,4 +106,6 @@ function FuelIcon({ fuel, className = 'w-3.5 h-3.5' }) {
   return <Icon name={map[fuel] || 'droplet'} className={className} stroke={1.8} />;
 }
 
-Object.assign(window, { Reveal, SectionLabel, Pill, Button, Icon, PlaceholderNote, FuelIcon, useReveal });
+
+
+export { Reveal, SectionLabel, Pill, Button, Icon, PlaceholderNote, FuelIcon, useReveal };

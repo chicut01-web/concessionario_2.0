@@ -1,10 +1,14 @@
-/* global React, window */
-const { useState } = React;
+import { useState } from 'react';
+import { Icon, Button, Pill, SectionLabel, Reveal, PlaceholderNote } from './primitives.jsx';
+import { TESTIMONIALS, TEAM, FAQ } from './data.jsx';
+
+
+
 
 /* =====================================================
    VALUTA IL TUO USATO
 ===================================================== */
-function ValutaUsato() {
+export function ValutaUsato() {
   const [form, setForm] = useState({ targa: '', km: '', anno: '' });
   const [submitted, setSubmitted] = useState(false);
 
@@ -103,8 +107,8 @@ function Field({ label, ph, value, onChange, type = 'text' }) {
 /* =====================================================
    TESTIMONIALS
 ===================================================== */
-function Testimonials() {
-  const items = window.SECAR.TESTIMONIALS;
+export function Testimonials() {
+  const items = TESTIMONIALS;
   return (
     <section className="py-24 md:py-36 bg-paper">
       <div className="max-w-[1320px] mx-auto px-6 md:px-10">
@@ -160,8 +164,8 @@ function Testimonials() {
 /* =====================================================
    TEAM
 ===================================================== */
-function Team() {
-  const team = window.SECAR.TEAM;
+export function Team() {
+  const team = TEAM;
   return (
     <section id="team" className="py-24 md:py-36 bg-gradient-to-b from-paper to-brand-50/30">
       <div className="max-w-[1320px] mx-auto px-6 md:px-10">
@@ -214,8 +218,8 @@ function Team() {
 /* =====================================================
    FAQ
 ===================================================== */
-function FAQSection() {
-  const faq = window.SECAR.FAQ;
+export function FAQSection() {
+  const faq = FAQ;
   const [openIdx, setOpenIdx] = useState(0);
 
   return (
@@ -265,7 +269,7 @@ function FAQSection() {
 /* =====================================================
    CONTATTI + MAPPA
 ===================================================== */
-function Contatti() {
+export function Contatti() {
   const [form, setForm] = useState({ nome: '', email: '', tel: '', msg: '' });
   const [sent, setSent] = useState(false);
   const [err, setErr] = useState({});
@@ -369,7 +373,7 @@ function Contatti() {
   );
 }
 
-function InfoCard({ icon, label, title, sub }) {
+export function InfoCard({ icon, label, title, sub }) {
   return (
     <div className="bg-white border border-ink-200 rounded-2xl p-5 flex gap-4 items-start hover:border-brand-300 transition">
       <div className="w-10 h-10 rounded-xl bg-brand-50 text-brand-700 grid place-items-center shrink-0">
@@ -384,7 +388,7 @@ function InfoCard({ icon, label, title, sub }) {
   );
 }
 
-function MapMock() {
+export function MapMock() {
   // Stylized fake map of Salerno area — placeholder for a real embedded map
   return (
     <svg viewBox="0 0 400 500" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice">
@@ -436,7 +440,7 @@ function MapMock() {
 /* =====================================================
    FOOTER
 ===================================================== */
-function Footer() {
+export function Footer() {
   const cols = [
     { h: 'Secar', links: ['Parco auto', 'Come funziona', 'Valuta il tuo usato', 'Team', 'Contatti'] },
     { h: 'Servizi', links: ['Garanzia 12 mesi', 'Finanziamenti', 'Permuta', 'Report 140 punti', 'Officina'] },
@@ -492,4 +496,4 @@ function Footer() {
   );
 }
 
-Object.assign(window, { ValutaUsato, Testimonials, Team, FAQSection, Contatti, Footer });
+

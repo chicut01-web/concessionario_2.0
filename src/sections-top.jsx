@@ -1,12 +1,18 @@
-/* global React, window */
-const { useState, useEffect, useRef } = React;
-const FM = window.Motion || window.FramerMotion || {};
-const { motion, useScroll, useTransform, useSpring } = FM;
+import { useState, useEffect, useRef } from 'react';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+import { Icon, Button, Pill, SectionLabel, Reveal, PlaceholderNote } from './primitives.jsx';
+import { CarSVG } from './car-svg.jsx';
+import { BRANDS, STEPS } from './data.jsx';
+
+
+
+
+
 
 /* =====================================================
    NAV
 ===================================================== */
-function Nav({ onOpenTweaks }) {
+export function Nav({ onOpenTweaks }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -78,7 +84,7 @@ function Nav({ onOpenTweaks }) {
 /* =====================================================
    HERO — scroll-driven car + entry animation
 ===================================================== */
-function Hero() {
+export function Hero() {
   const sectionRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start start', 'end start'] });
   const bgY        = useTransform(scrollYProgress, [0, 1], ['0%', '18%']);
@@ -203,8 +209,8 @@ function Hero() {
 /* =====================================================
    BRAND MARQUEE — logos as monospace wordmarks (placeholder)
 ===================================================== */
-function BrandMarquee() {
-  const brands = window.SECAR.BRANDS;
+export function BrandMarquee() {
+  const brands = BRANDS;
   const row = [...brands, ...brands];
   return (
     <section aria-label="Marche trattate" className="border-y border-ink-200 bg-paper py-6 overflow-hidden">
@@ -223,7 +229,7 @@ function BrandMarquee() {
 /* =====================================================
    TRANSPARENCY — 3 pillar cards appearing on scroll
 ===================================================== */
-function Transparency() {
+export function Transparency() {
   const pillars = [
     {
       n: '01',
@@ -335,8 +341,8 @@ function Transparency() {
 /* =====================================================
    HOW IT WORKS — 3 steps, scroll-anchored car
 ===================================================== */
-function HowItWorks() {
-  const steps = window.SECAR.STEPS;
+export function HowItWorks() {
+  const steps = STEPS;
   const sectionRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start end', 'end start'] });
   const x     = useTransform(scrollYProgress, [0, 1], ['-20%', '120%']);
@@ -391,4 +397,4 @@ function HowItWorks() {
   );
 }
 
-Object.assign(window, { Nav, Hero, BrandMarquee, Transparency, HowItWorks });
+

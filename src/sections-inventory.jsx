@@ -1,10 +1,15 @@
-/* global React, window */
-const { useState, useMemo, useRef, useEffect } = React;
+import { useState, useMemo, useRef, useEffect } from 'react';
+import { Icon, Button, Pill, SectionLabel, Reveal, PlaceholderNote, FuelIcon } from './primitives.jsx';
+import { CarSVG } from './car-svg.jsx';
+import { CARS } from './data.jsx';
+
+
+
 
 /* =====================================================
    CAR CARD — 3D tilt on hover
 ===================================================== */
-function CarCard({ car, onOpen }) {
+export function CarCard({ car, onOpen }) {
   const ref = useRef(null);
   const [tx, setTx] = useState({ rx: 0, ry: 0, mx: 50, my: 50 });
 
@@ -141,8 +146,8 @@ function CarCard({ car, onOpen }) {
 /* =====================================================
    INVENTORY — filters + grid + modal
 ===================================================== */
-function Inventory() {
-  const all = window.SECAR.CARS;
+export function Inventory() {
+  const all = CARS;
   const [brand, setBrand] = useState('Tutte');
   const [fuel, setFuel]   = useState('Tutti');
   const [price, setPrice] = useState(50000);
@@ -251,7 +256,7 @@ function Inventory() {
   );
 }
 
-function Select({ label, value, onChange, options }) {
+export function Select({ label, value, onChange, options }) {
   const list = options.map(o => Array.isArray(o) ? o : [o, o]);
   return (
     <label className="flex items-center gap-2 pl-3 pr-2 py-1.5 rounded-full bg-ink-50 hover:bg-ink-100 transition text-[13px] text-ink-800 cursor-pointer">
@@ -263,7 +268,7 @@ function Select({ label, value, onChange, options }) {
   );
 }
 
-function CarModal({ car, onClose }) {
+export function CarModal({ car, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-6">
       <div className="absolute inset-0 bg-ink-900/50 backdrop-blur-sm animate-[fadeIn_250ms_ease]" onClick={onClose} />
@@ -335,4 +340,4 @@ function CarModal({ car, onClose }) {
   );
 }
 
-Object.assign(window, { Inventory, CarCard, CarModal });
+

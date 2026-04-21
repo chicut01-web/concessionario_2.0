@@ -1,4 +1,4 @@
-/* global window */
+
 // All data for the Secar prototype. Attached to window for cross-script access.
 
 const CARS = [
@@ -55,4 +55,6 @@ const STEPS = [
   { n: 3, t: 'Porta a casa',          d: 'Finanziamento, permuta e passaggio di propriet\u00e0 li gestiamo noi. Tu ritiri l\u2019auto pronta, con il pieno.' },
 ];
 
-window.SECAR = { CARS, BRANDS, TESTIMONIALS, FAQ, TEAM, STEPS };
+
+
+export { CARS, BRANDS, TESTIMONIALS, FAQ, TEAM, STEPS };
