@@ -1,3 +1,4 @@
+"use client";
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { Icon, Button, Pill, SectionLabel, Reveal, PlaceholderNote, FuelIcon } from './primitives.jsx';
 import { CarSVG } from './car-svg.jsx';

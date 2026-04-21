@@ -1,3 +1,4 @@
+"use client";
 import { useState } from 'react';
 import { Icon, Button, Pill, SectionLabel, Reveal, PlaceholderNote } from './primitives.jsx';
 import { TESTIMONIALS, TEAM, FAQ } from './data.jsx';

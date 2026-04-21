@@ -1,4 +1,5 @@
 
+"use client";
 import { useRef, useEffect, useState } from "react";
 
 // Small helper: reveal on scroll with IntersectionObserver (fallback if framer motion busy)
